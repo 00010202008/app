@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
-import os
 
 app = Flask(__name__)
 
@@ -15,12 +14,27 @@ def log_location():
     lon = data.get('longitude')
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # Ensure log.txt exists or append to it
+    log_entry = f"{timestamp} - Lat: {lat}, Lon: {lon}\n"
+
+    # Write to file (ephemeral on Render)
     with open('log.txt', 'a') as f:
-        f.write(f"{timestamp} - Lat: {lat}, Lon: {lon}\n")
+        f.write(log_entry)
+
+    # Print to console (visible in Render logs)
+    print(log_entry.strip())
 
     return jsonify({'status': 'success'})
 
-# For local development only
+# OPTIONAL: View logs in browser
+@app.route('/logs')
+def view_logs():
+    try:
+        with open('log.txt', 'r') as f:
+            content = f.read()
+        return f"<pre>{content}</pre>"
+    except FileNotFoundError:
+        return "<pre>No logs yet.</pre>"
+
+# For local development only (Render uses gunicorn)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
