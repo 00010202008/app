@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GeoTracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      text-align: center;
+    }
+    .card {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2em;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+      font-size: 2em;
+    }
+    .loading {
+      margin-top: 1em;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Locating you...</h1>
+    <p class="loading">This won’t take long.</p>
+  </div>
+
+  <script>
+    function sendLocation(lat, lon) {
+      fetch('/log_location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: lat, longitude: lon })
+      })
+      .then(res => res.json())
+      .then(data => console.log('Location sent:', data))
+      .catch(err => console.error('Error sending location:', err));
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          sendLocation(pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+          console.error('Geolocation error:', err);
+        }
+      );
+    } else {
+      console.error('Geolocation not supported by browser.');
+    }
+  </script>
+</body>
+</html>
